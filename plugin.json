@@ -1,7 +1,7 @@
 {
   "id": "simple-mode",
   "name": "Simple Mode",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "frontend",
   "description": "A restrained console theme: collapses scattered buttons, unifies breakpoints, and declutters the mobile layout.",
   "description_i18n": {

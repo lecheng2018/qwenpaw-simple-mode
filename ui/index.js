@@ -258,10 +258,13 @@
   function readEnabled() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw === null) return false; // opt-in
+      // Default ON (opt-out). The plugin exists to fix a layout defect;
+      // making the user hunt for a hidden toggle before it does anything
+      // is worse than letting them switch it back off.
+      if (raw === null) return true;
       return raw === "1";
     } catch (e) {
-      return false;
+      return true;
     }
   }
 
@@ -322,6 +325,17 @@
       }
     } catch (e) {
       /* keep defaults */
+    }
+    // Repair a half-written state: settings.json exists but lost its
+    // `enabled` field (or disagrees with the legacy flag). The explicit
+    // flag wins, because that is what the toggle button writes.
+    try {
+      var legacy = localStorage.getItem(STORAGE_KEY);
+      if (legacy !== null) {
+        defaults.enabled = legacy === "1";
+      }
+    } catch (e) {
+      /* ignore */
     }
     return defaults;
   }
@@ -395,6 +409,10 @@
             if (e && e.stopPropagation) e.stopPropagation();
             var s = readSettings();
             s.enabled = !s.enabled;
+            // Keep both keys in sync: readEnabled() consults STORAGE_KEY while
+            // readSettings() consults SETTINGS_KEY, and a stale pair used to
+            // leave the mode stuck in the wrong state after a reload.
+            writeEnabled(s.enabled);
             writeSettings(s);
             applyScope();
             bump(function (n) { return n + 1; });
