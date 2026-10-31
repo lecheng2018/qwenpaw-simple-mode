@@ -93,15 +93,111 @@
     "  }",
     "}",
 
-    /* ---------- 4. Composer safe area ------------------------------- *
-     * The chat composer had no env(safe-area-inset-bottom) handling, so
-     * the iPhone home indicator overlapped the input box.
+    /* ---------- 4. Composer: safe area + action-row overflow --------- *
+     * Two separate problems, both visible on iPhone:
+     *
+     * a) The composer had no env(safe-area-inset-bottom) handling, so the
+     *    home indicator overlapped the input box.
+     *
+     * b) The action row on the right of the composer is
+     *    `flex-wrap: nowrap` + `max-width: 100%`, while the project
+     *    directory control is `flex: 1 1 150px` and the approval-mode
+     *    control is a labelled dropdown. On a 390px phone the row needs
+     *    ~365px but only ~200px is left after the sidebar, so the
+     *    buttons get squeezed and clipped out of the viewport instead
+     *    of wrapping.
+     *
+     * The fix: on narrow screens, drop the text labels to icons only and
+     * let the row keep nowrap, so every control stays tappable.
      * ---------------------------------------------------------------- */
 
     "html." + ROOT_CLASS + " [class*='-module__chatPageRoot__'] [class*='-module__mobileComposerControl__'],",
     "html." + ROOT_CLASS + " [class*='-module__senderActionAffix__'],",
     "html." + ROOT_CLASS + " [class*='-module__compactSenderAffix__'] {",
     "  padding-bottom: max(8px, env(safe-area-inset-bottom));",
+    "}",
+
+    /* b1. Collapse the project-directory and approval-mode controls to
+     *      icon-only on narrow screens, no matter how their text is
+     *      structured (font-size:0 hides text nodes but leaves svg icons
+     *      intact because they have explicit width/height).
+     * ---------------------------------------------------------------- */
+    "@media (max-width: 768px) {",
+    "  html." + ROOT_CLASS + " [class*='-module__senderProjectControl__'],",
+    "  html." + ROOT_CLASS + " [class*='-module__senderApprovalControl__'] {",
+    "    flex: 0 0 auto !important;",
+    "    width: 44px !important;",
+    "    min-width: 44px !important;",
+    "    max-width: 44px !important;",
+    "    padding: 0 !important;",
+    "    font-size: 0 !important;",
+    "    gap: 0 !important;",
+    "    justify-content: center;",
+    "    overflow: hidden;",
+    "  }",
+    "  /* restore icon sizing so it doesn't inherit font-size:0 */",
+    "  html." + ROOT_CLASS + " [class*='-module__senderProjectControl__'] svg,", 
+    "  html." + ROOT_CLASS + " [class*='-module__senderApprovalControl__'] svg {",
+    "    width: 18px !important;",
+    "    height: 18px !important;",
+    "  }",
+    "  /* b2. Let the whole action row shrink gracefully and never clip. */",
+    "  html." + ROOT_CLASS + " [class$='-sender-actions-list'] {",
+    "    gap: 2px !important;",
+    "    flex: 0 1 auto !important;",
+    "    min-width: 0 !important;",
+    "  }",
+    "  html." + ROOT_CLASS + " [class$='-sender-actions-list'] > * {",
+    "    flex: 0 0 auto !important;",
+    "  }",
+    "}",
+    /* b3. Always cap these two controls on desktop too, so an overly
+     *     long project name cannot blow out the composer row. */
+    "html." + ROOT_CLASS + " [class*='-module__senderProjectControl__'] {",
+    "  flex: 0 1 auto !important;",
+    "  min-width: 0 !important;",
+    "}",
+
+    /* ---------- 4b. Narrow-screen composer density ------------------ *
+     * On a 390px phone the composer's action row is pushed to the far
+     * right, leaving a large empty band between the left-hand prefix
+     * buttons and the right-hand actions. The row reads as "a few buttons
+     * floating in space" instead of one toolbar.
+     *
+     * Fix: on phones, let the action row sit on its own line directly
+     * under the input, spanning the full width, so every control is
+     * visible and evenly spaced.
+     * ---------------------------------------------------------------- */
+
+    "@media (max-width: 768px) {",
+    "  html." + ROOT_CLASS + " [class$='-sender-content-bottom'] {",
+    "    display: flex !important;",
+    "    flex-direction: column !important;",
+    "    align-items: stretch !important;",
+    "    gap: 6px !important;",
+    "    row-gap: 6px !important;",
+    "  }",
+    "  /* the prefix (input area) keeps its own row */",
+    "  html." + ROOT_CLASS + " [class$='-sender-prefix'] {",
+    "    width: 100% !important;",
+    "    flex: 1 1 auto !important;",
+    "  }",
+    "  /* the actions become a full-width strip below the input */",
+    "  html." + ROOT_CLASS + " [class$='-sender-actions-list'] {",
+    "    width: 100% !important;",
+    "    flex: 1 1 100% !important;",
+    "    margin-left: 0 !important;",
+    "    justify-content: flex-start !important;",
+    "    column-gap: 10px !important;",
+    "    flex-wrap: nowrap !important;",
+    "  }",
+    "  html." + ROOT_CLASS + " [class$='-sender-actions-list'] > * {",
+    "    flex: 0 0 auto !important;",
+    "  }",
+    "  /* the send button stays pinned to the right of that strip */",
+    "  html." + ROOT_CLASS + " [class$='-sender-actions-list'] > *:last-child {",
+    "    margin-left: auto !important;",
+    "  }",
     "}",
 
     /* ---------- 5. Density ------------------------------------------ *

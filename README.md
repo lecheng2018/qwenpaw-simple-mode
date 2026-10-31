@@ -20,9 +20,10 @@ QwenPaw Console 的**纯前端外观插件**。不改动 Console 任何源码，
 2. **统一断点语义** — 定义 `--sm-bp/--md-bp/--lg-bp/--xl-bp`（480/768/1024/1280）四档
 3. **触控目标强化** — 粗指针设备上强制 40–44px 命中区（复用已有的 `--app-hit-touch`）
 4. **Composer 安全区** — 补上 `env(safe-area-inset-bottom)`
-5. **密度统一** — 标题栏内距 14px、面包屑 19px、工具组零间隙
-6. **表格防溢出** — 宽表横向滚动 + 移动端圆角收敛
-7. **减弱动效** — 遵循 `prefers-reduced-motion`
+5. **Composer 按钮行重排**（v0.1.1 新增）— 窄屏下把动作区从「挤在输入框右端、中间大片空白」改成**输入框与按钮各占一行、按钮铺满整行**，项目目录与审批模式折叠为 44px 图标
+6. **密度统一** — 标题栏内距 14px、面包屑 19px、工具组零间隙
+7. **表格防溢出** — 宽表横向滚动 + 移动端圆角收敛
+8. **减弱动效** — 遵循 `prefers-reduced-motion`
 
 ## 使用
 
@@ -40,6 +41,37 @@ window.QwenPaw.simpleMode.isEnabled()   // 查询
 window.QwenPaw.simpleMode.setScope("mobile" | "global")
 window.QwenPaw.simpleMode.getSettings()
 ```
+
+## 移动端 Composer 的具体问题
+
+在 390px 的 iPhone 视口下，Chat 输入框底部那一行原本是：
+
+```
+[附件][麦克风]              [项目目录 default][智能模式][警告][发送]
+        ↑ 这中间是一大片空白，看起来像按钮被吃掉
+```
+
+原因（源码实测）：
+
+- `[class$="-sender-actions-list"]` 是 `flex-wrap: nowrap` + `max-width: 100%`
+- 项目目录控件是 `flex: 1 1 150px`，会预留 150px 宽度
+- 审批模式是带文字标签的下拉
+
+结果动作区被推到输入框最右端，左侧只剩两个按钮，中间形成一条空带。
+
+简洁模式在窄屏下把动作区改成**独占一行、铺满宽度**（`flex-direction: column`），
+并把两个带文字的控件折叠成 44px 图标（`font-size: 0` + 固定宽度），
+发送按钮仍用 `margin-left: auto` 贴右。
+
+实测（Playwright，iPhone 14 / 390×844）：
+
+| | 修复前 | 修复后 |
+|:--|:--|:--|
+| 容器 flex-direction | row | **column** |
+| 动作区 x 范围 | 234–374（挤在右端） | **72–374（铺满整行）** |
+| 项目目录按钮宽度 | 185px（含文字） | **44px（图标）** |
+| 审批模式按钮宽度 | 112px（含文字） | **44px（图标）** |
+| 视口溢出 | 按钮被挤出 | **无溢出** |
 
 ## 实现要点
 
