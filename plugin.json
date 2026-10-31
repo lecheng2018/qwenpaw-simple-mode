@@ -1,0 +1,27 @@
+{
+  "id": "simple-mode",
+  "name": "Simple Mode",
+  "version": "0.1.0",
+  "type": "frontend",
+  "description": "A restrained console theme: collapses scattered buttons, unifies breakpoints, and declutters the mobile layout.",
+  "description_i18n": {
+    "zh-CN": "简洁模式：收敛散落的按钮、统一断点、精简移动端布局，一键开关。",
+    "en-US": "Simple Mode: collapse scattered buttons, unify breakpoints, and declutter the mobile layout with one toggle."
+  },
+  "author": "QwenPaw",
+  "qwenpaw_version": {
+    "min": "2.0.0"
+  },
+  "entry": {
+    "frontend": "ui/index.js"
+  },
+  "meta": {
+    "pawapp": {
+      "icon": "🧘",
+      "category": "productivity",
+      "entry_page": "/apps/simple-mode",
+      "launch_scope": "page"
+    },
+    "permissions": {}
+  }
+}
