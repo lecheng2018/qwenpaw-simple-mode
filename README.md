@@ -77,6 +77,7 @@ window.QwenPaw.simpleMode.getSettings()
 
 | 版本 | 变更 |
 |:--|:--|
+| v0.1.3 | 修复 v0.1.2 引入的 Composer 布局回归：改用 grid 两列 + 展开 `senderActionAffix`，按钮回到同一行、模型选择器回到输入框内 |
 | v0.1.2 | **默认开启**（改为 opt-out）；修复 `enabled` 与 `settings` 两个存储键不同步导致的刷新后状态卡死；`readSettings()` 增加半写状态自愈 |
 | v0.1.1 | 修复窄屏 Composer 动作行：改为上下两行、两个带文字控件折叠为 44px 图标 |
 | v0.1.0 | 首个版本：标题栏动作区收敛、四档断点、触控目标、安全区、表格防溢出 |

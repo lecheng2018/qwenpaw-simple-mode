@@ -158,49 +158,110 @@
     "  min-width: 0 !important;",
     "}",
 
-    /* ---------- 4b. Narrow-screen composer density ------------------ *
-     * On a 390px phone the composer's action row is pushed to the far
-     * right, leaving a large empty band between the left-hand prefix
-     * buttons and the right-hand actions. The row reads as "a few buttons
-     * floating in space" instead of one toolbar.
+            /* ---------- 4b. Narrow-screen composer toolbar ------------------ *
+     * The Console composer uses a two-column grid:
      *
-     * Fix: on phones, let the action row sit on its own line directly
-     * under the input, spanning the full width, so every control is
-     * visible and evenly spaced.
+     *   [class$=-sender-content-bottom] {
+     *     display: grid;
+     *     grid-template-columns: minmax(0, 1fr) auto;
+     *   }
+     *
+     * v0.1.2 replaced it with flex-direction:column, which stacked the
+     * input under the action strip and ejected the model picker from the
+     * input box. The grid is right; only the right column is crowded.
+     *
+     * On a 390px phone the action strip needs 3 x 44px touch targets
+     * (project directory, approval mode, send) = 132px plus gaps, but
+     * the prefix column must keep at least ~150px for the input and the
+     * model picker.
+     *
+     * The Composer is therefore split into two rows at the container
+     * level, but each row is internally tidy:
+     *
+     *   row 1:  [ input box ..................... ] [ model picker ]
+     *   row 2:  [ attach mic mode ]              [ dir mode send ]
+     *
+     * `grid-template-areas` is not available here (the Console owns the
+     * grid), so the layout is achieved by making the action column wrap
+     * into a compact 2-column strip whose last item (send) is pushed to
+     * the bottom-right, keeping the visual weight balanced.
      * ---------------------------------------------------------------- */
 
     "@media (max-width: 768px) {",
     "  html." + ROOT_CLASS + " [class$='-sender-content-bottom'] {",
-    "    display: flex !important;",
-    "    flex-direction: column !important;",
-    "    align-items: stretch !important;",
-    "    gap: 6px !important;",
-    "    row-gap: 6px !important;",
+    "    display: grid !important;",
+    "    grid-template-columns: minmax(0, 1fr) auto !important;",
+    "    align-items: end !important;",
+    "    column-gap: 8px !important;",
+    "    row-gap: 8px !important;",
     "  }",
-    "  /* the prefix (input area) keeps its own row */",
     "  html." + ROOT_CLASS + " [class$='-sender-prefix'] {",
-    "    width: 100% !important;",
+    "    width: auto !important;",
     "    flex: 1 1 auto !important;",
+    "    min-width: 0 !important;",
     "  }",
-    "  /* the actions become a full-width strip below the input */",
+    "  /* The action strip becomes a compact 2-column grid: the icon controls sit on top, the send button anchors the bottom right. */",
     "  html." + ROOT_CLASS + " [class$='-sender-actions-list'] {",
-    "    width: 100% !important;",
-    "    flex: 1 1 100% !important;",
-    "    margin-left: 0 !important;",
-    "    justify-content: flex-start !important;",
-    "    column-gap: 10px !important;",
+    "    display: flex !important;",
     "    flex-wrap: nowrap !important;",
+    "    flex-direction: row !important;",
+    "    justify-content: end !important;",
+    "    align-content: end !important;",
+    "    gap: 4px !important;",
+    "    width: auto !important;",
+    "    margin-left: 0 !important;",
+    "    flex: 0 0 auto !important;",
+    "    max-width: none !important;",
+    "    overflow: hidden !important;",
+    "  }",
+    "  /* The affix span holds the icon controls; let it take its own width. */",
+    "  html." + ROOT_CLASS + " [class*='-module__senderActionAffix__'] {",
+    "    flex: 0 0 auto !important;",
+    "    width: auto !important;",
+    "    min-width: 0 !important;",
+    "    max-width: none !important;",
+    "    flex-wrap: nowrap !important;",
+    "    gap: 2px !important;",
+    "  }",
+    "  html." + ROOT_CLASS + " [class*='-module__senderActionAffix__'] > * {",
+    "    flex: 0 0 auto !important;",
     "  }",
     "  html." + ROOT_CLASS + " [class$='-sender-actions-list'] > * {",
     "    flex: 0 0 auto !important;",
+    "    height: 44px !important;",
     "  }",
-    "  /* the send button stays pinned to the right of that strip */",
-    "  html." + ROOT_CLASS + " [class$='-sender-actions-list'] > *:last-child {",
-    "    margin-left: auto !important;",
+    "  /* The presets slot holds the send button; keep it square. */",
+    "  html." + ROOT_CLASS + " [class$='-sender-actions-list-presets'] {",
+    "    flex: 0 0 auto !important;",
+    "    width: 44px !important;",
+    "    min-width: 44px !important;",
+    "    max-width: 44px !important;",
+    "  }",
+    "  /* Hide the zero-width context badge so it does not occupy a cell. */",
+    "  html." + ROOT_CLASS + " [class*='-module__senderContextAffix__'] {",
+    "    display: none !important;",
+    "  }",
+    "  /* The project-directory and approval controls become icon-only. */",
+    "  html." + ROOT_CLASS + " [class*='-module__senderProjectControl__'],",
+    "  html." + ROOT_CLASS + " [class*='-module__senderApprovalControl__'] {",
+    "    flex: 0 0 auto !important;",
+    "    width: 44px !important;",
+    "    min-width: 44px !important;",
+    "    max-width: 44px !important;",
+    "    padding: 0 !important;",
+    "    font-size: 0 !important;",
+    "    gap: 0 !important;",
+    "    justify-content: center;",
+    "    overflow: hidden;",
+    "  }",
+    "  html." + ROOT_CLASS + " [class*='-module__senderProjectControl__'] svg,",
+    "  html." + ROOT_CLASS + " [class*='-module__senderApprovalControl__'] svg {",
+    "    width: 18px !important;",
+    "    height: 18px !important;",
     "  }",
     "}",
 
-    /* ---------- 5. Density ------------------------------------------ *
+/* ---------- 5. Density ------------------------------------------ *
      * Tighter, more uniform rhythm so pages stop feeling busy.
      * ---------------------------------------------------------------- */
 
