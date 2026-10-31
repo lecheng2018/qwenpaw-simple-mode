@@ -16,8 +16,8 @@ QwenPaw Console 的**纯前端外观插件**。不改动 Console 任何源码，
 
 ## 简洁模式做了什么
 
-1. **标题栏动作区收敛** — 改为单行横向滚动条，不再换行堆叠
-2. **统一断点语义** — 定义 `--sm-bp/--md-bp/--lg-bp/--xl-bp`（480/768/1024/1280）四档
+1. **标题栏动作区收敛** — 改为单行横向滚动条，不再换行堆叠（窄屏从左对齐滚动，所有按钮都可达）
+2. **统一断点语义** — 定义 `--sm-bp/--md-bp/--lg-bp/--xl-bp`（480/768/1024/1280）四档令牌，供本插件与同级样式表对齐；注意 `@media` 无法读取 CSS 变量，插件自身的媒体查询直接使用同一批数值
 3. **触控目标强化** — 粗指针设备上强制 40–44px 命中区（复用已有的 `--app-hit-touch`）
 4. **Composer 安全区** — 补上 `env(safe-area-inset-bottom)`
 5. **Composer 按钮行重排**（v0.1.1 新增）— 窄屏下把动作区从「挤在输入框右端、中间大片空白」改成**输入框与按钮各占一行、按钮铺满整行**，项目目录与审批模式折叠为 44px 图标
@@ -29,7 +29,7 @@ QwenPaw Console 的**纯前端外观插件**。不改动 Console 任何源码，
 
 - **开关**：聊天页右上角出现一个圆点按钮（● 开启 / ○ 关闭），点击切换
 - **作用范围**：默认全局；可在浏览器控制台调用 `window.QwenPaw.simpleMode.setScope("mobile")` 限定仅窄屏生效
-- **状态持久化**：`localStorage` 的 `qwenpaw.simpleMode.settings`
+- **状态持久化**：`localStorage` 的 `qwenpaw.simpleMode.settings`（JSON，唯一权威）；`qwenpaw.simpleMode.enabled` 仅作为旧版兼容镜像（读取一次用于迁移，写入时同步镜像）
 
 ### 控制台 API
 
@@ -77,6 +77,7 @@ window.QwenPaw.simpleMode.getSettings()
 
 | 版本 | 变更 |
 |:--|:--|
+| v0.2.0 | 重构：样式表改为单一模板字符串并合并 v0.1.1/v0.1.3 重复的窄屏 Composer 规则（保留级联实际生效值）；存储统一为单一 `settings` 键（旧 `enabled` 键迁移+镜像，消除双键不同步 bug 类）；仅在用户显式操作时写存储（修复 mobile 作用域下拖动窗口会把 `enabled` 写成 0 的隐患）；`MutationObserver` 自愈替代 rAF/定时器轮询；开关圆点改为 CSS 圆点（主题色+光晕）并支持中英文提示；修复窄屏动作条 `flex-end` 导致左侧溢出按钮不可达的问题 |
 | v0.1.3 | 修复 v0.1.2 引入的 Composer 布局回归：改用 grid 两列 + 展开 `senderActionAffix`，按钮回到同一行、模型选择器回到输入框内 |
 | v0.1.2 | **默认开启**（改为 opt-out）；修复 `enabled` 与 `settings` 两个存储键不同步导致的刷新后状态卡死；`readSettings()` 增加半写状态自愈 |
 | v0.1.1 | 修复窄屏 Composer 动作行：改为上下两行、两个带文字控件折叠为 44px 图标 |
