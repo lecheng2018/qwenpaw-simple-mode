@@ -73,6 +73,14 @@ window.QwenPaw.simpleMode.getSettings()
 | 审批模式按钮宽度 | 112px（含文字） | **44px（图标）** |
 | 视口溢出 | 按钮被挤出 | **无溢出** |
 
+## 版本历史
+
+| 版本 | 变更 |
+|:--|:--|
+| v0.1.2 | **默认开启**（改为 opt-out）；修复 `enabled` 与 `settings` 两个存储键不同步导致的刷新后状态卡死；`readSettings()` 增加半写状态自愈 |
+| v0.1.1 | 修复窄屏 Composer 动作行：改为上下两行、两个带文字控件折叠为 44px 图标 |
+| v0.1.0 | 首个版本：标题栏动作区收敛、四档断点、触控目标、安全区、表格防溢出 |
+
 ## 实现要点
 
 Console 使用 CSS Modules，`generateScopedName: "[name]__[local]__[hash]"`（构建产物实际为
